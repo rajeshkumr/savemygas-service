@@ -1,7 +1,21 @@
-import { Elysia } from "elysia";
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { gql } from 'graphql-tag';
+import { gasStationsTypeDef } from './schema/generic';
+import { gasStationsResolver } from './resolvers/generic';
 
-const app = new Elysia().get("/", () => "Hello Elysia").listen(3000);
+const schema = makeExecutableSchema({
+  typeDefs: gql(gasStationsTypeDef),
+  resolvers: gasStationsResolver,
+});
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+const server = new ApolloServer({
+  schema,
+});
+
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 3000 },
+});
+
+console.log(`🚀 Server ready at ${url}`);
